@@ -1,0 +1,6 @@
+
+CAMERA_INDEX = 0
+WINDOW_TITLE = 'Camera (Press Q to exit)'
+FRAME_WIDTH = 640
+FRAME_HEIGHT = 480
+EXIT_KEY = 'q'
