@@ -1,5 +1,8 @@
+from core import Camera
 
 
 if __name__ == '__main__':
-    print('test')
+    cam = Camera()
+    cam.initialize()
+
 
