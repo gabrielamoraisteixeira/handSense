@@ -14,19 +14,18 @@ class Camera:
 
         self.cap.set(cv.CAP_PROP_FRAME_WIDTH, settings.FRAME_WIDTH)
         self.cap.set(cv.CAP_PROP_FRAME_HEIGHT, settings.FRAME_HEIGHT)
+        return True
 
-        try:
-            while True:
-                ret, frame = self.cap.read()
-                if not ret:
-                    print("Cannot receive frame")
-                    break
-                cv.imshow(settings.WINDOW_TITLE, frame)
-
-                if cv.waitKey(1) & 0xFF == ord(settings.EXIT_KEY):
-                    break
-        finally:
-            self.release()
+    def get_frame(self):
+        if not self.cap:
+            print("Camera not initialized")
+            return
+        while True:
+            ret, frame = self.cap.read()
+            if not ret:
+                print("Cannot receive frame")
+                break
+            yield frame
 
     def release(self):
         if self.cap:
