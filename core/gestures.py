@@ -1,6 +1,6 @@
 import cv2 as cv
 import mediapipe as mp
-from config import settings
+from config import mappings, settings
 
 class Gestures:
     def __init__(self):
@@ -60,3 +60,9 @@ class Gestures:
                             fingers.append(0)
                     fingers_up.append(sum(fingers))
         return fingers_up
+
+    def map_fingers_to_action(self, finger_count):
+        #TODO: only accept a gesture after 1.5 second
+        action = mappings.get_action_by_finger_count(finger_count)
+        display_info = mappings.get_display_info(action)
+        return display_info
