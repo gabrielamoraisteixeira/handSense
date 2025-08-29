@@ -31,5 +31,9 @@ def get_action_by_finger_count(finger_count):
             return action
     return None
 
+
 def get_display_info(action):
-    return GESTURES_DISPLAY.get(action)
+    return GESTURES_DISPLAY.get(action, {
+        'text': 'UNKNOWN',
+        'color': (255, 255, 255)
+    })

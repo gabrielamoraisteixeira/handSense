@@ -11,6 +11,7 @@ def main():
         for frame in cam.get_frame():
             results, _ = gestures.process_frame(frame)
             processed_frame = gestures.find_fingers(frame, results=results, draw=True)
+            processed_frame = cv.flip(processed_frame, 1)
             fingers_up = gestures.count_fingers_up(frame, results=results)
             if fingers_up:
                 display_info = gestures.map_fingers_to_action(fingers_up[0])
