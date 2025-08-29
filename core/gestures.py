@@ -1,9 +1,12 @@
 import cv2 as cv
 import mediapipe as mp
 from config import mappings, settings
+import time
 
 class Gestures:
     def __init__(self):
+        self.last_finger_count = None
+        self.last_time = time.time()
         self.mp_hands = mp.solutions.hands
         self.hands = self.mp_hands.Hands(
             static_image_mode=False,
@@ -62,7 +65,14 @@ class Gestures:
         return fingers_up
 
     def map_fingers_to_action(self, finger_count):
-        #TODO: only accept a gesture after 1.5 second
-        action = mappings.get_action_by_finger_count(finger_count)
-        display_info = mappings.get_display_info(action)
-        return display_info
+        current_time = time.time()
+        if finger_count != self.last_finger_count:
+            self.last_finger_count = finger_count
+            self.last_time = current_time
+            return {'text': 'UNKNOWN', 'color': (255, 255, 255)}
+        elif current_time - self.last_time >= 0.5:
+            action = mappings.get_action_by_finger_count(finger_count)
+            display_info = mappings.get_display_info(action)
+            return display_info
+        else:
+            return {'text': 'UNKNOWN', 'color': (255, 255, 255)}
