@@ -1,5 +1,5 @@
 import cv2 as cv
-from config import settings
+from config import settings, mappings
 from core import Camera, Gestures, spotify_player as sp
 def main():
     cam = Camera()
@@ -13,6 +13,15 @@ def main():
             fingers_up = gestures.count_fingers_up(frame, results=results)
             if fingers_up:
                 display_info = gestures.map_fingers_to_action(fingers_up[0])
+                action = mappings.get_action_by_finger_count(fingers_up[0])
+                if action == 'play':
+                    sp.play_top_track()
+                elif action == 'pause':
+                    sp.pause_track()
+                elif action == 'next':
+                    sp.next_track()
+                else:
+                    sp.previous_track()
             else:
                 display_info = {'text': 'UNKNOWN', 'color': (255, 255, 255)}
             cv.putText(

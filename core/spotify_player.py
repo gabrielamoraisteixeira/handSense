@@ -42,19 +42,62 @@ def get_spotify_client():
     ))
     return sp
 
-#currently starting top track but can't be changed to a specific song/playlist
+def get_active_device(sp):
+    devices = sp.devices()
+    for device in devices.get('devices', []):
+        if device.get('is_active'):
+            return device['id']
+    if devices.get('devices'):
+        return devices['devices'][0]['id']
+    return None
+
+#currently starting top track but can be changed to a specific song/playlist
 def play_top_track():
     sp = get_spotify_client()
-    top_tracks = sp.current_user_top_tracks(limit=1, time_range='short_term')
-    if top_tracks['items']:
-        track_uri = top_tracks['items'][0]['uri']
-        print(f"Playing: {top_tracks['items'][0]['name']} by {top_tracks['items'][0]['artists'][0]['name']}")
-        devices = sp.devices()
-        if devices['devices']:
-            device_id = devices['devices'][0]['id']
-            sp.start_playback(device_id=device_id, uris=[track_uri])
+    try:
+        top_tracks = sp.current_user_top_tracks(limit=1, time_range='short_term')
+        if top_tracks['items']:
+            track_uri = top_tracks['items'][0]['uri']
+            print(f"Playing: {top_tracks['items'][0]['name']} by {top_tracks['items'][0]['artists'][0]['name']}")
+            device_id = get_active_device(sp)
+            if device_id:
+                sp.start_playback(device_id=device_id, uris=[track_uri])
+            else:
+                print("No active Spotify device found.")
+        else:
+            print("No top tracks found.")
+    except Exception as e:
+        print(f"Spotify play error: {e}")
+
+def pause_track():
+    sp = get_spotify_client()
+    try:
+        device_id = get_active_device(sp)
+        if device_id:
+            sp.pause_playback(device_id=device_id)
         else:
             print("No active Spotify device found.")
-    else:
-        print("No top tracks found.")
+    except Exception as e:
+        print(f"Spotify pause error: {e}")
 
+def next_track():
+    sp = get_spotify_client()
+    try:
+        device_id = get_active_device(sp)
+        if device_id:
+            sp.next_track(device_id=device_id)
+        else:
+            print("No active Spotify device found.")
+    except Exception as e:
+        print(f"Spotify next error: {e}")
+
+def previous_track():
+    sp = get_spotify_client()
+    try:
+        device_id = get_active_device(sp)
+        if device_id:
+            sp.previous_track(device_id=device_id)
+        else:
+            print("No active Spotify device found.")
+    except Exception as e:
+        print(f"Spotify previous error: {e}")
