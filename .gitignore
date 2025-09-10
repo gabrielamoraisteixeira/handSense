@@ -1,3 +1,5 @@
 .venv
 .tool-versions
 .idea
+.cache
+.env

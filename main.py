@@ -1,9 +1,7 @@
-from core import Camera, Gestures
-from config import settings
 import cv2 as cv
-
+from config import settings
+from core import Camera, Gestures, spotify_player as sp
 def main():
-    #TODO: integrate with media player
     cam = Camera()
     cam.initialize()
     gestures = Gestures()
@@ -35,4 +33,6 @@ def main():
         cam.release()
 
 if __name__ == '__main__':
+    sp.play_top_track()
+    sp.get_token()
     main()
