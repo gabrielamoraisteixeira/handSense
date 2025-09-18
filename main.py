@@ -1,10 +1,16 @@
 import cv2 as cv
-from config import settings, mappings
+from config import settings
 from core import Camera, Gestures, spotify_player as sp
+import time
+
 def main():
     cam = Camera()
     cam.initialize()
     gestures = Gestures()
+    if settings.AUTO_PLAY_ON_START:
+        sp.play_top_track()
+    last_action = None
+    last_action_ts = 0.0
     try:
         for frame in cam.get_frame():
             results, _ = gestures.process_frame(frame)
@@ -13,35 +19,43 @@ def main():
             fingers_up = gestures.count_fingers_up(frame, results=results)
             if fingers_up:
                 display_info = gestures.map_fingers_to_action(fingers_up[0])
-                action = mappings.get_action_by_finger_count(fingers_up[0])
-                if action == 'play':
-                    sp.play_top_track()
-                elif action == 'pause':
-                    sp.pause_track()
-                elif action == 'next':
-                    sp.next_track()
-                else:
-                    sp.previous_track()
+                action = display_info.get('action')
+                if action:
+                    now = time.time()
+                    should_run = (action != last_action) or (now - last_action_ts > settings.INTERVAL)
+                    if should_run:
+                        state = sp.get_playback_state()
+                        if action == 'play':
+                            if state in ('paused', 'unknown'):
+                                sp.play_top_track()
+                        elif action == 'pause':
+                            if state == 'playing':
+                                sp.pause_track()
+                        elif action == 'next':
+                            if state == 'playing':
+                                sp.next_track()
+                        elif action == 'previous':
+                            if state == 'playing':
+                                sp.previous_track()
+                        last_action = action
+                        last_action_ts = now
             else:
                 display_info = {'text': 'UNKNOWN', 'color': (255, 255, 255)}
             cv.putText(
-            processed_frame,
-            display_info['text'],
-            (30, 60),
-            cv.FONT_HERSHEY_SIMPLEX,
-            2,
-            display_info['color'],
-            4,
-            cv.LINE_AA
+                processed_frame,
+                display_info['text'],
+                (30, 60),
+                cv.FONT_HERSHEY_SIMPLEX,
+                2,
+                display_info['color'],
+                4,
+                cv.LINE_AA
             )
             cv.imshow(settings.WINDOW_TITLE, processed_frame)
-            print(fingers_up)
             if cv.waitKey(1) & 0xFF == ord(settings.EXIT_KEY):
                 break
     finally:
         cam.release()
 
 if __name__ == '__main__':
-    sp.play_top_track()
-    sp.get_token()
     main()
