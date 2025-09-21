@@ -26,7 +26,9 @@ def main():
                     if should_run:
                         state = sp.get_playback_state()
                         if action == 'play':
-                            if state in ('paused', 'unknown'):
+                            if state == 'paused':
+                                sp.resume_track()
+                            elif state == 'unknown':
                                 sp.play_top_track()
                         elif action == 'pause':
                             if state == 'playing':

@@ -120,6 +120,10 @@ class SpotifyController:
                 self.sp.previous_track(device_id=self.device_id)
                 self.state = "playing"
                 self.state_ts = time.time()
+            elif cmd == "resume":
+                self.sp.start_playback(device_id=self.device_id)
+                self.state = "playing"
+                self.state_ts = time.time()
         except spotipy.exceptions.SpotifyException as se:
             print(f"Spotify command error: {se}")
         except Exception:
@@ -171,6 +175,14 @@ class SpotifyController:
         except Exception:
             pass
 
+    def resume(self):
+        if self.throttled():
+            return
+        try:
+            self.q.put_nowait("resume")
+        except Exception:
+            pass
+
 controller = SpotifyController()
 
 
@@ -215,3 +227,7 @@ def next_track():
 
 def previous_track():
     return controller.prev()
+
+
+def resume_track():
+    return controller.resume()
